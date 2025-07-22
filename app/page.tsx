@@ -2,12 +2,36 @@
 
 import { useState, useEffect } from 'react';
 
+// 費用種別の設定 - ここに新しい項目を追加するだけでOK
+const FEE_TYPES = [
+  {
+    value: '管理費積立金',
+    label: '管理費積立金',
+    inputLabel: '管理費・修繕積立金の合計（月額）'
+  },
+  {
+    value: '賃料等清算金',
+    label: '賃料等清算金',
+    inputLabel: '賃料等の合計（月額）'
+  },
+  // 新しい項目を追加する場合は、ここに同じ形式で追加
+  // 例:
+  // {
+  //   value: '駐車場代',
+  //   label: '駐車場代',
+  //   inputLabel: '駐車場代（月額）'
+  // },
+] as const;
+
+type FeeType = typeof FEE_TYPES[number]['value'];
+
 export default function Home() {
   const [totalAmount, setTotalAmount] = useState('');
   const [displayAmount, setDisplayAmount] = useState('');
   const [settlementDate, setSettlementDate] = useState(
     new Date().toISOString().split('T')[0]
   );
+  const [feeType, setFeeType] = useState<FeeType>(FEE_TYPES[0].value);
   const [results, setResults] = useState<{
     sellerBurden: { days: number; amount: number };
     buyerBurden: { days: number; amount: number };
@@ -107,9 +131,21 @@ export default function Home() {
             </svg>
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            不動産管理費・積立金
+            日割り計算ツール
           </h1>
-          <p className="text-xl text-gray-600 mt-2">日割り計算ツール</p>
+          <div className="mt-4">
+            <select
+              value={feeType}
+              onChange={(e) => setFeeType(e.target.value as FeeType)}
+              className="px-6 py-2 text-lg font-medium text-gray-700 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all hover:border-gray-300 cursor-pointer"
+            >
+              {FEE_TYPES.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         
         {/* 入力セクション */}
@@ -141,7 +177,7 @@ export default function Home() {
             {/* 金額入力 */}
             <div className="group">
               <label htmlFor="totalAmount" className="block text-sm font-bold text-gray-700 mb-2 group-hover:text-indigo-600 transition-colors">
-                💴 管理費・修繕積立金の合計（月額）
+                💴 {FEE_TYPES.find(type => type.value === feeType)?.inputLabel || '金額（月額）'}
               </label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-xl font-bold">¥</span>
@@ -266,7 +302,7 @@ export default function Home() {
         {/* フッター */}
         <div className="text-center mt-8 mb-4">
           <p className="text-sm text-gray-500">
-            © 2024 不動産管理費計算ツール
+            © 2024 日割り計算ツール
           </p>
         </div>
       </div>
